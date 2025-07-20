@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "display_data.h": "c",
+        "data_structures.h": "c",
+        "proc_thread_parser.h": "c",
+        "typeinfo": "c",
+        "manage_memory.h": "c",
+        "cstdlib": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "enabled",
+    "sonarlint.connectedMode.project": {
+        "connectionId": "aviseqk-personal-dev",
+        "projectKey": "aviseqk_tune"
+    }
+}
