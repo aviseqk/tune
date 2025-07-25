@@ -1,0 +1,50 @@
+# Compiler and flags
+CC = gcc
+# STRICT COMPILATION
+# CFLAGS = -g -fsanitize=address -Wall -Wextra -Werror
+
+# either use valgrind to analyse memory leaks or use AddressSanitizer by using this -fsanitize flag. Both of these wont work together
+CFLAGS = -g -fsanitize=address -Wall -Wextra
+LDFLAGS = -fsanitize=address
+
+# Executable name
+TARGET = process_info
+
+#Directories
+SRC_DIR = src
+INC_DIR = include
+BUILD_DIR = build
+
+# Source files
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+# SRCS = process_info.c data_structures.c thread_parser.c proc_parser.c manage_memory.c cpu_monitor.c sorting_utils.c flatten_util.c
+
+# Header files (not strictly required unless using make dependencies)
+HDRS := $(wildcard $(SRC_DIR)/*.c)
+# HDRS = data_structures.h data_types.h manage_memory.h memory_monitor.h hdr.h proc_thread_parser.h cpu_monitor.h sorting_utils.h flatten_util.h
+
+# Object files (optional optimization)
+OBJS = $(SRCS:.c=.o)
+
+# Default target
+all: $(TARGET)
+	@echo "Rebuilding the binary and object files"
+
+$(TARGET): $(SRCS)
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) $(LDFLAGS)
+
+clean:
+	@echo "Cleaning up old binary and object files"
+	rm -f $(TARGET) *.o
+
+rebuild:
+	@echo "Cleaning up old binary and object files..."
+	rm -f $(TARGET) *.o
+	@echo "Rebuilding $(TARGET)..."
+	$(MAKE) all
+
+rerun:
+	@echo "Running `rebuild` make command"
+	$(MAKE) rebuild 
+	@echo "Running the binary $(TARGET)..."
+	./$(TARGET)

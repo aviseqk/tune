@@ -8,8 +8,10 @@
         "cstdlib": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",
     "sonarlint.connectedMode.project": {
         "connectionId": "aviseqk-personal-dev",
         "projectKey": "aviseqk_tune"
-    }
+    },
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
 }

@@ -1,0 +1,19 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../backend/include",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-g",
+      "-o",
+      "main",
+      "main.c"
+    ],
+    "directory": "/home/abhishek-singh/Documents/my_codebase/tune/collection-and-parsing-engine",
+    "file": "/home/abhishek-singh/Documents/my_codebase/tune/collection-and-parsing-engine/main.c",
+    "output": "/home/abhishek-singh/Documents/my_codebase/tune/collection-and-parsing-engine/main"
+  }
+]
