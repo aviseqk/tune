@@ -28,6 +28,34 @@ typedef unsigned long long my_u64;
 //     display_cpu_info(info, num_cores);
 // }
 
+CPUStatsArray get_cpu_stats_array() {
+    CPUStatsArray result = { 0 };
+    FILE *fp = fopen("/proc/stat", "r");
+    if (!fp) {
+        return result;
+    }
+
+    char line[512];
+    size_t capacity = 4; // initial guess, realloc later with capacity field
+    result.entries = malloc(capacity * sizeof(CPUStat));
+    result.count = 0;
+
+    while(fgets(line, sizeof(line), fp)) {
+        if (strncmp(line, "cpu", 3) != 0) break;
+        if (result.count >= capacity) {
+            capacity *= 2;
+            result.entries = realloc(result.entries, capacity * sizeof(CPUStat));
+        }
+        CPUStat stat = { 0 };
+        sscanf(line, "%s %llu %llu %llu %llu %llu %llu %llu %llu", stat.id,
+            &stat.user, &stat.nice, &stat.system, &stat.idle, &stat.iowait,  &stat.irq, &stat.softirq, &stat.steal);
+
+        result.entries[result.count++] = stat;
+    }
+    fclose(fp);
+    return result;
+}
+
 /* returns number of cores */
 int read_cpu_stats(cpu_stats *stats, bool total_cpu_flag) {
     FILE *fp = fopen("/proc/stat", "r");
@@ -36,15 +64,11 @@ int read_cpu_stats(cpu_stats *stats, bool total_cpu_flag) {
         perror("fopen /proc/stat error");
         exit(EXIT_FAILURE);
     }
-
     char line[512];
     int core = 0;
-
-
     while (fgets(line, sizeof(line), fp)) {
         
         if (strncmp(line, "cpu", 3) != 0) break;
-        
         if (strncmp(line, "cpu ", 4) == 0){
             if (total_cpu_flag) {
                 printf("read cpu line %s", line);
@@ -162,6 +186,34 @@ double compute_cpu_usage(cpu_stats prev, cpu_stats curr, bool jiffy_flag) {
     if (jiffy_flag) {
         return total_delta;
     }
+    return usage;
+}
+
+/* calculates the cpu usage metrics using delta/diff */
+float compute_cpu_usage1(CPUStat prev, CPUStat curr, bool jiffy_flag) {
+
+    my_u64 prev_idle = prev.idle + prev.iowait;
+    my_u64 prev_non_idle = prev.user + prev.nice + prev.system + prev.irq + prev.softirq + prev.steal;
+
+    my_u64 prev_total = prev_idle + prev_non_idle;
+    
+    my_u64 curr_idle = curr.idle + curr.iowait;
+    my_u64 curr_non_idle = curr.user + curr.nice + curr.system + curr.irq + curr.softirq + curr.steal;
+    
+    my_u64 curr_total = curr_idle + curr_non_idle;
+
+    // printf("Prev Total: %lld  Curr Total: %lld\n", prev_total, curr_total);
+    // printf("Prev Idle: %lld Curr Idle: %lld\n", prev_idle, curr_idle);
+
+    double total_delta = curr_total - prev_total;
+    double idle_delta = curr_idle - prev_idle;
+    double usage = ( ( total_delta - idle_delta ) / total_delta ) * 100.0;
+
+    
+    if (jiffy_flag) {
+        return total_delta;
+    }
+    // printf("LOG f(x): compute_cpu_usage1 - %lf\n", usage);
     return usage;
 }
 

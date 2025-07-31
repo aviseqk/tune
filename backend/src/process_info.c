@@ -173,31 +173,31 @@ int validate_threads_count(process_info *proc) {
 }
 
 
-void populate_cpu_data() {
+// void populate_cpu_data() {
 
-    cpu_stats prev, curr;
-    cpu_stats prev_cores[CPUS_MAX], curr_cores[CPUS_MAX];
+//     cpu_stats prev, curr;
+//     cpu_stats prev_cores[CPUS_MAX], curr_cores[CPUS_MAX];
 
-    read_cpu_stats(&prev, true);
-    usleep(CPU_INTERVAL);
-    read_cpu_stats(&curr, true);
+//     read_cpu_stats(&prev, true);
+//     usleep(CPU_INTERVAL);
+//     read_cpu_stats(&curr, true);
     
-    int num_cores = read_cpu_stats(prev_cores, false);
-    printf("NUM CORES : %d\n", num_cores);
-    usleep(CPU_INTERVAL);    
-    read_cpu_stats(curr_cores, false);
+//     int num_cores = read_cpu_stats(prev_cores, false);
+//     printf("NUM CORES : %d\n", num_cores);
+//     usleep(CPU_INTERVAL);    
+//     read_cpu_stats(curr_cores, false);
     
-    cpu_display_info info[num_cores];
-    for (int core = 0; core < num_cores; core++) {
-        info[core].index = core;
-        info[core].usage = compute_cpu_usage(prev_cores[core], curr_cores[core], false);
-        // display_core_info(&info[core]);
-    }
+//     cpu_display_info info[num_cores];
+//     for (int core = 0; core < num_cores; core++) {
+//         info[core].index = core;
+//         info[core].usage = compute_cpu_usage(prev_cores[core], curr_cores[core], false);
+//         // display_core_info(&info[core]);
+//     }
     
-    display_cpu_info(info, num_cores);
-    double cpu_total = compute_cpu_usage(prev, curr, false);
-    printf("\nCPU Total Usage %.2f%%\n", cpu_total);
-}
+//     display_cpu_info(info, num_cores);
+//     double cpu_total = compute_cpu_usage(prev, curr, false);
+//     printf("\nCPU Total Usage %.2f%%\n", cpu_total);
+// }
 
 // int main(int argc, char *argv[]) {
 

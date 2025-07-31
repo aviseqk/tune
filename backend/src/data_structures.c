@@ -36,6 +36,18 @@ void display_process_info(const process_info* proc) {
     printf("Kernel Thread     : %s\n", proc->is_kernel_thread ? "Yes" : "No");
 }
 
+void display_complete_process_info(const process_info* proc) {
+    display_process_info(proc);
+
+    for (int i=0; i < (int) proc->thread_count; i++) {
+        if (proc->threads[i].thread_id != 0) {
+            // printf("Iterating through this thread_info struct TID: %d T_NAME: %s\n", proc->threads[i].thread_id, proc->threads[i].thread_name);
+            display_thread_info(&proc->threads[i]);
+        }
+    }
+
+}
+
 void display_thread_info(const thread_info* thread) {
     if (thread == NULL) {
         printf("Invalid thread_info pointer.\n");

@@ -21,7 +21,7 @@ void get_utime_stime(char pid[], unsigned long *utime, unsigned long *stime);
 
 process_info parse_process_info(char pid[], bool cpu_filter, bool mem_filter);
 
-process_info* parse_all_processes(int* count, bool zombie_pid_filter, bool kthread_pid_filter, bool log);
+void parse_all_processes(int* count, bool zombie_pid_filter, bool kthread_pid_filter, bool log);
 
 // void parse_all_processes(int* count);
 

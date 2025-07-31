@@ -25,7 +25,7 @@ typedef struct vm_mem_data {
 
 /** ENTRYPOINT FUNCTION
 * A pure function that parses all the processes and returns a malloc'ed list of process_info struct */
-process_info* parse_all_processes(int* count, bool zombie_pid_filter, bool kthread_pid_filter, bool log) {
+void parse_all_processes(int* count, bool zombie_pid_filter, bool kthread_pid_filter, bool log) {
 
     my_pid = (int) getpid();
     clk_tck = sysconf(_SC_CLK_TCK);
@@ -58,6 +58,7 @@ process_info* parse_all_processes(int* count, bool zombie_pid_filter, bool kthre
             (*count)++; // increment the count for total process counter
             
             traverse_threads_for_a_process(this_pid, &process_detail);
+            display_complete_process_info(&process_detail);
             free(process_detail.threads);       // malloc security freeing
         }
     }
@@ -318,7 +319,7 @@ void traverse_threads_for_a_process(char pid[], process_info *process_detail) {
 
             thread_info thread_detail = parse_thread_info(pid, tid);
             // display_thread_info(&thread_detail);
-            display_thread_info(&thread_detail);
+            // display_thread_info(&thread_detail);
             // assert(process_detail->thread_count <= process_detail->thread_capacity);
             add_thread_to_process_memory(process_detail, thread_detail);
 
@@ -400,7 +401,10 @@ thread_info parse_thread_info(char pid[], char tid[]) {
     // printf("comm_path - %s", comm_path);
     fp = fopen(comm_path, "r");
     if (fp) {
-        fgets(detail.thread_name, sizeof(detail.thread_name), fp);
+        char buffer[256];
+        fgets(buffer, sizeof(buffer), fp);
+        strncpy(detail.thread_name, buffer, sizeof(buffer));
+        detail.thread_name[sizeof(detail.thread_name) - 1] = '\0';
         fclose(fp);
     }
 
