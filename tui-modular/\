@@ -1,0 +1,100 @@
+package components
+
+import (
+	"fmt"
+	"github.com/charmbracelet/lipgloss"
+)
+
+var fieldsWidth struct {
+	pid, name, command, owner, threads, mem, cpu int
+}
+
+type ProcessBox struct {
+	width       int
+	height      int
+	Pid         int
+	ProgramName string
+	Threads     int
+	Command     string
+	Owner       string
+	MemUsage    float64
+	CpuUsage    float64
+	Expanded    bool // this field is for the state that makes children be rendered on the tui
+	Depth       int
+	Children    []*ProcessBox
+}
+
+func (p *ProcessBox) SetSize(w, h int) {
+	p.width = w
+	p.height = h
+
+	p.calculateWidths()
+}
+
+func (p *ProcessBox) NewProcessBox() *ProcessBox {
+	process := ProcessBox{}
+
+	return &process
+}
+
+func flatten(nodes []*ProcessBox) []*ProcessBox {
+	var out []*ProcessBox
+	var walk func([]*ProcessBox, int)
+	walk = func(procs []*ProcessBox, depth int) {
+		for _, proc := range procs {
+			proc.Depth = depth
+			out = append(out, proc)
+			if proc.Expanded {
+				walk(proc.Children, depth+1)
+			}
+		}
+	}
+	walk(nodes, 0)
+	return out
+}
+
+func (p *ProcessBox) calculateWidths() {
+	windowWidth := p.width - 6
+	width1 := windowWidth * 2 / 5
+	fieldsWidth.command = width1
+
+	width2 := (p.width - width1) / 2
+	fieldsWidth.pid = width2 / 2
+	fieldsWidth.owner = width2 / 2
+
+	width3 := p.width - width1 - width2
+	fieldsWidth.threads = width3 / 3
+	fieldsWidth.cpu = width3 / 3
+	fieldsWidth.mem = width3 / 3
+
+}
+
+func (p *ProcessBox) View() string {
+	//var usageStr strings.Builder
+
+	name := p.ProgramName
+	if len(p.Children) > 0 {
+		prefix := ">"
+		if p.Expanded {
+			prefix = "V"
+		}
+		name = prefix + " " + name
+	}
+
+	pidStr := lipgloss.NewStyle().Background(lipgloss.Color("1")).Align(lipgloss.Right).Width(fieldsWidth.pid - 1).Render(fmt.Sprint(p.Pid))
+	nameStr := lipgloss.NewStyle().Background(lipgloss.Color("1")).Align(lipgloss.Right).Width(fieldsWidth.name - 1).Render(fmt.Sprint(p.ProgramName))
+	commandStr := lipgloss.NewStyle().Align(lipgloss.Right).Width(fieldsWidth.command - 1).Render(fmt.Sprint(p.Command))
+	ownerStr := lipgloss.NewStyle().Align(lipgloss.Right).Width(fieldsWidth.owner - 1).Render(fmt.Sprint(p.Owner))
+	threadsStr := lipgloss.NewStyle().Align(lipgloss.Right).Width(fieldsWidth.threads - 1).Render(fmt.Sprint(p.Threads))
+	cpuStr := lipgloss.NewStyle().Align(lipgloss.Right).Width(fieldsWidth.cpu - 1).Render(fmt.Sprintf("%.1f%%", p.CpuUsage))
+	memStr := lipgloss.NewStyle().Align(lipgloss.Right).Width(fieldsWidth.mem - 1).Render(fmt.Sprintf("%.1f%%", p.MemUsage))
+
+	//line := fmt.Sprintf("%s %d %-10s %-10s %-10s %.2f%% %.2f%%\n", sel, p.Pid, name, p.Command, p.Owner, p.CpuUsage, p.MemUsage)
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, pidStr, nameStr, commandStr, threadsStr, ownerStr, cpuStr, memStr)
+
+	//usageStr.WriteString(sel)
+	//usageStr.WriteString(line)
+
+	//return lipgloss.NewStyle().Width(p.width).Render(usageStr.String())
+}

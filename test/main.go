@@ -18,6 +18,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// practice comment here
 const (
 	padding  = 2
 	maxWidth = 80
